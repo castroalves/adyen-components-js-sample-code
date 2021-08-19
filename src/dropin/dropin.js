@@ -1,13 +1,20 @@
 // 0. Get clientKey
 getClientKey().then(clientKey => {
     getPaymentMethods().then(paymentMethodsResponse => {
+
+        // Get URL params
+        const params = new URLSearchParams(window.location.search);
+        const allowPaymentMethods = params.get('paymentMethod') || [];
+
         // 1. Create an instance of AdyenCheckout
         const checkout = new AdyenCheckout({
             environment: 'test',
             clientKey: clientKey, // Mandatory. clientKey from Customer Area
             paymentMethodsResponse,
-            removePaymentMethods: ['paysafecard', 'c_cash'],
-            onChange: state => {
+            allowPaymentMethods,
+            // showPayButton: false,
+            // removePaymentMethods: ['paysafecard', 'c_cash'],
+            onChange: (state, component) => {
                 updateStateContainer(state); // Demo purposes only
             },
             onSubmit: (state, component) => {
@@ -18,7 +25,7 @@ getClientKey().then(clientKey => {
         });
 
         // 2. Create and mount the Component
-        const dropin = checkout
+        window.dropin = checkout
             .create('dropin', {
                 // Events
                 onSelect: activeComponent => {
